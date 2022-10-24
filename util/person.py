@@ -8,8 +8,8 @@ class Person:
 
     def print_person(self):
         current = 2022
-        year = int(self.ssn[:2]) # 인덱스 0, 1은 출생년도
-        gender_checker = int(self.ssn[7]) # 7은 성별판별번호 인덱스
+        year = int(self.ssn[:2])
+        gender_checker = int(self.ssn[7])
         if gender_checker == 1 or gender_checker == 2:
             year += 1900
             if gender_checker == 1:
