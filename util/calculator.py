@@ -7,7 +7,11 @@ class Calculator(object):
         self.op = op
         self.num2 = num2
 
+
     def __str__(self):
+        pass
+
+    def print_calculator(self):
         num1 = self.num1
         op = self.op
         num2 = self.num2
@@ -23,13 +27,24 @@ class Calculator(object):
             result = num1 % num2
         else :
             result = "잘못된 연산자 입니다."
+
         return f"{num1} {op} {num2}  = {result}"
+
+        print(f"{num1} {op} {num2}  = {result}")
+
+    @staticmethod
+    def print_menu():
+        print("1. 입력 :")
+        print("2. 출력 :")
+        print("3. 삭제 :")
+        print("4. 종료 :")
+        return int(input("메뉴 :"))
 
     @staticmethod
     def new_calculator():
-        num1 = int(input("숫자 : "))
+        num1 = int(input("처음 수 : "))
         op = input("연산자 : ")
-        num2 = int(input("숫자 : "))
+        num2 = int(input("두번 째 수 : "))
         return Calculator(num1, op, num2)
 
     @staticmethod
