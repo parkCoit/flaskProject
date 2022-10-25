@@ -1,23 +1,17 @@
 from randomlist import Randomlist
+from util.common import Common
+
 
 class SearchNumber(object):
     def __init__(self, num ):
         self.num = num
 
-    def print_searchNumber(self):
+    def __str__(self):
         rl1 = Randomlist().get_random(10 , 100 , 10)
         print(f"배수 : {self.num} \n 나온 값: {rl1} ")
         for i in rl1:
             if i %  self.num == 0:
-                print(f"{self.num}배수 의 값 : {i}")
-
-    @staticmethod
-    def print_menu():
-        print("1. 배수 등록")
-        print("2. 배수 목록")
-        print("3. 배수 삭제")
-        print("4. 종료")
-        return int(input("메뉴 :"))
+                return f"{self.num}배수 의 값 : {i}"
 
     @staticmethod
     def new_menu():
@@ -25,7 +19,7 @@ class SearchNumber(object):
 
     @staticmethod
     def get_searchNumber(ls):
-        [i.print_searchNumber() for i in ls]
+        [print(i) for i in ls]
 
     @staticmethod
     def delete_searchNumber(ls, num):
@@ -36,7 +30,7 @@ class SearchNumber(object):
     def main():
         ls = []
         while True:
-            menu = SearchNumber.print_menu()
+            menu = Common.menu()
             if menu == 1 :
                 print("### 배수 등록 ###")
                 ls.append(SearchNumber.new_menu())
