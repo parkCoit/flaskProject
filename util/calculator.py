@@ -6,12 +6,12 @@ class Calculator(object):
         self.num1 = num1
         self.op = op
         self.num2 = num2
-
+        self.result = self.get_result()
 
     def __str__(self):
-        pass
+        return f"{self.num1} {self.op} {self.num2}  = {self.result}"
 
-    def print_calculator(self):
+    def get_result(self):
         num1 = self.num1
         op = self.op
         num2 = self.num2
@@ -27,18 +27,7 @@ class Calculator(object):
             result = num1 % num2
         else :
             result = "잘못된 연산자 입니다."
-
-        return f"{num1} {op} {num2}  = {result}"
-
-        print(f"{num1} {op} {num2}  = {result}")
-
-    @staticmethod
-    def print_menu():
-        print("1. 입력 :")
-        print("2. 출력 :")
-        print("3. 삭제 :")
-        print("4. 종료 :")
-        return int(input("메뉴 :"))
+        return result
 
     @staticmethod
     def new_calculator():
@@ -59,8 +48,11 @@ class Calculator(object):
     def main():
         ls = []
         while True :
-            menu = Common.menu()
-            if menu == 1:
+            menu = Common.menu(["종료", "입력", "출력", "삭제"])
+            if menu == 0:
+                print("### 종료 ###")
+                break
+            elif menu == 1:
                 print("### 입력 ###")
                 ls.append(Calculator.new_calculator())
             elif menu == 2:
@@ -69,9 +61,6 @@ class Calculator(object):
             elif menu == 3:
                 print("### 삭제 ###")
                 Calculator.delete_calculator(ls, input("기호 :"))
-            elif menu == 4:
-                print("### 종료 ###")
-                break
             else : print("잘못 된 값")
 
 Calculator.main()

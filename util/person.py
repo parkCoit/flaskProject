@@ -1,3 +1,6 @@
+from util.common import Common
+
+
 class Person:
     def __init__(self, name, ssn, juso) -> None:
         self.name = name
@@ -26,13 +29,6 @@ class Person:
 
         print(f"{self.name} {self.age} {self.gender} {self.juso} ")
 
-    @staticmethod
-    def print_menu():
-        print("1. 신원 등록")
-        print("2. 신원 정보")
-        print("3. 신원 삭제")
-        print("4. 종료")
-        return int(input("메뉴 :"))
 
     @staticmethod
     def new_person():
@@ -54,8 +50,11 @@ class Person:
     def main():
         ls = []
         while True :
-            menu = Person.print_menu()
-            if menu == 1:
+            menu = Common.menu(["종료", "신원 등록", "신원 정보", "신원 삭제"])
+            if menu == 0:
+                print("종료 ")
+                break
+            elif menu == 1:
                 print("신원 등록 ")
                 ls.append(Person.new_person())
             elif menu == 2:
@@ -64,9 +63,6 @@ class Person:
             elif menu == 3:
                 print("신원 삭제 ")
                 Person.delete_person(ls, input("주민번호"))
-            elif menu == 4:
-                print("종료 ")
-                break
             else: print("잘못 된 값")
 
 Person.main()
