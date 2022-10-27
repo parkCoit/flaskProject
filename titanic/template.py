@@ -24,7 +24,7 @@ class Plot(object) : # plot 을 이용해 시각화
         ax[0].set_title('0.사망자 vs 1.생존자')
         ax[0].set_ylabel('')
         ax[1].set_title('0.사망자 vs 1.생존자')
-        sns.countplot('Survived', data=this, ax=ax[1])
+        sns.countplot(x ='Survived', data=this, ax=ax[1])
         plt.show()
 
     def draw_pclass(self):
@@ -41,5 +41,12 @@ class Plot(object) : # plot 을 이용해 시각화
         this['Survived'][this["Sex"] == "female"].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[1], shadow=True)
         ax[0].set_title('남성의 생존비율 [0.사망자 vs 1.생존자]')
         ax[1].set_title('여성의 생존비율 [0.사망자 vs 1.생존자]')
+        plt.show()
+
+    def draw_embarked(self):
+        this = self.entry
+        this["생존결과"] = this["Survived"].replace(0, "사망자").replace(1, "생존자")
+        this["승선항구"] = this["Embarked"].replace("C", "쉘버그").replace("S", "사우스헴튼").replace("Q", "퀸즈타운")
+        sns.countplot(data=this, x="승선항구", hue="생존결과")
         plt.show()
 

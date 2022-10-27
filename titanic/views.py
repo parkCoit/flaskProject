@@ -14,11 +14,21 @@ class TitanicController(object):
     dataset = Dataset()
     model = TitanicModel()
 
-    def preprocess(self) -> object: # 전처리
-        pass
+    def preprocess(self, train, test) -> object: # 전처리
+        model = self.model
+        this = self.dataset
+        this.train = model.new_model(train)
+        this.test = model.new_model(test)
+        this.id = this.test['PassengerId']
+        # columns 편집과정
+        return this
 
-    def modeling(self) -> object: # 모델생성
-        self.preprocess()
+    def modeling(self, train, test) -> object: # 모델생성
+        model = self.model
+        this = self.preprocess(train, test)
+        this.label = model.create_label(this)
+        this.train = model.create_train(this)
+        return this
 
     def learning(self): # 머신러닝
         pass
