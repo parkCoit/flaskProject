@@ -1,6 +1,5 @@
 import pandas as pd
 
-from util import dataset
 from util.dataset import Dataset
 """
  ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
@@ -35,7 +34,14 @@ class TitanicModel(object):
         return pd.read_csv(this.context + this.fname)
     @staticmethod
     def create_train(this) -> object:
-        pass
+        return this.train.drop('Survived', axis = 1) # drop은 dataset 에 있는 train에있는 Suvived열을 지운다
+    @staticmethod
+    def create_label(this) -> object: # test용은 label
+        return this.train['Survived']
 
-    def create_label(self): # test용은 label
-        pass
+    @staticmethod
+    def drop_features(this, *feature) -> object: # *feature 에잇는 *은 지료구조라는 표시임
+        for i in feature:
+            this.train = this.train.drop(i, axis = 1)
+            this.test = this.test.drop(i, axis = 1)
+        return this
