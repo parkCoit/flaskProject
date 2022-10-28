@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -44,7 +45,7 @@ class TitanicModel(object):
 
     @staticmethod
     def create_train(this) -> object:
-        return this.train.drop('Survived', axis = 1) # drop은 dataset 에 있는 train에있는 Suvived열을 지운다
+        return this.train.drop('Survived', axis = 1) # drop은 dataset 에 있는 train에 있는 Suvived열을 지운다
     @staticmethod
     def create_label(this) -> object: # test용은 label
         return this.train['Survived']
@@ -67,8 +68,14 @@ class TitanicModel(object):
         return this
     @staticmethod
     def age_ordinal(this) -> object: # 10대, 20대, 30대
-        train = this.train
-        test = this.test
+        for i in [this.train, this.test]:
+            i['Age'] = i['Age'].fillna(-0.5)     # -0.5는 확인 할 수 없으니 빼버린다는 의미
+        bins = [-1, 0, 5, 12, 18, 24, 35, 68,np.inf]  # bins 는 값을 하나씩 할당 하겠다는 의미 np.inf는 max를 뛰어 넘으면~ 이런 식의 표현
+        labels = ['Unknown', 'Baby', 'Child', 'Teenager', 'Student', 'Young Adult', 'Adult', 'Senior']
+        age_mapping = {'Unknown': 0, 'Baby': 1, 'Child': 2, 'Teenager': 3, 'Student': 4,'Young Adult': 5, 'Adult': 6, 'Senior': 7}
+        for i in [this.train, this.test]:
+            i['AgeGroup'] = pd.cut(i['Age'], bins=bins, labels=labels)
+            i['AgeGroup'] =  i['AgeGroup'].map(age_mapping)
         return this
     @staticmethod
     def fare_ordinal(this) -> object: # 비싼거, 보통, 저렴한 것  4등분 pd.qcut()
@@ -80,7 +87,7 @@ class TitanicModel(object):
         this.train = this.train.fillna({"Embarked":"S"})    # fillna 는 null 값을 임의로 넣으라는 뜻
         this.test = this.test.fillna({"Embarked": "S"})
         for i in [this.train, this.test]:
-            i['Embarked'] = i['Embarked'].map({"S": 1, "C" : 2, "Q" : 3}) # 같은 이름을 넣으면 원래 이름에 덮어짐 train,test에 스칼라가 추가 되는 것이 아님.
+            i['Embarked'] = i['Embarked'].map({"S": 1, "C" : 2, "Q" : 3}) # 같은 이름을 넣으면 원래 이름에 덮어짐 train,test파일에 스칼라가 추가 되는 것이 아님.
         return this
 
 if __name__ == '__main__':
@@ -88,9 +95,10 @@ if __name__ == '__main__':
     this = Dataset()
     this.train = t.new_model('train.csv')
     this.test = t.new_model('test.csv')
-    this = TitanicModel.sex_norminal(this)
-    this = TitanicModel.fare_ordinal(this)
+    #this = TitanicModel.sex_norminal(this)
+    #this = TitanicModel.fare_ordinal(this)
     this = TitanicModel.embarked_nominal(this)
+    this = TitanicModel.age_ordinal(this)
     print(this.train.columns)
     print(this.train.head())
     print(this.test.columns)
