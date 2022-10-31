@@ -11,6 +11,7 @@ class Dataset(object):
     id : str # 승객 ID 로 문제가 된다
     label : str # 승객 ID에 따른 생존여부로 답이 된다
 
+
     # 데이터를 읽고(getter = 프로퍼티) / 쓰기(setter) 기능을 추가한다.
 
     @property
@@ -48,3 +49,4 @@ class Dataset(object):
 
     @label.setter
     def label(self, label): self._label = label
+

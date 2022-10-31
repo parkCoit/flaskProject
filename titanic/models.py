@@ -83,11 +83,31 @@ class TitanicModel(object):
             i['FareBand'] = pd.qcut(i['Fare'], 4, labels=[1, 2, 3, 4] )
         return this
     @staticmethod
-    def embarked_nominal(this) -> object: # 승선항구 S, C, Q
+    def embarked_norminal(this) -> object: # 승선항구 S, C, Q
         this.train = this.train.fillna({"Embarked":"S"})    # fillna 는 null 값을 임의로 넣으라는 뜻
         this.test = this.test.fillna({"Embarked": "S"})
         for i in [this.train, this.test]:
             i['Embarked'] = i['Embarked'].map({"S": 1, "C" : 2, "Q" : 3}) # 같은 이름을 넣으면 원래 이름에 덮어짐 train,test파일에 스칼라가 추가 되는 것이 아님.
+        return this
+    @staticmethod
+    def title_norminal(this) -> object:
+        combine = [this.train, this.test]
+        for i in combine:
+            i['Title'] = i.Name.str.extract('([A-Za-z]+)\.', expand=False)  # Name에 str값을 뽑아낸다. ([A-Za-z]+)\. 는 영어 전체를  expand 는 맞는거만 가져와라
+        for i in combine:
+            i['Title'] = i['Title'].replace(['Countess', 'Lady', 'Sir'], 'Royal')        # replace는  앞에 값을 뒤에 값으로 변환 한다 라는의미
+            i['Title'] = i['Title'].replace(['Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Jonkheer', 'Dona', 'Mme'], 'Rare')
+            i['Title'] = i['Title'].replace('Mlle', 'Mr')
+            i['Title'] = i['Title'].replace('Ms', 'Miss')
+            i['Title'] = i['Title'].fillna(0)
+            i['Title'] = i['Title'].map({
+                'Mr': 1,
+                'Miss': 2,
+                'Mrs': 3,
+                'Master': 4,
+                'Royal': 5,
+                'Rare': 6
+            })
         return this
 
 if __name__ == '__main__':
@@ -97,7 +117,7 @@ if __name__ == '__main__':
     this.test = t.new_model('test.csv')
     #this = TitanicModel.sex_norminal(this)
     #this = TitanicModel.fare_ordinal(this)
-    this = TitanicModel.embarked_nominal(this)
+    this = TitanicModel.embarked_norminal(this)
     this = TitanicModel.age_ordinal(this)
     print(this.train.columns)
     print(this.train.head())

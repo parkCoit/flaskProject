@@ -26,7 +26,11 @@ class TitanicController(object):
         this = model.sex_norminal(this)
         this = model.age_ordinal(this)
         this = model.fare_ordinal(this)
-        this = model.embarked_nominal(this)
+        this = model.embarked_norminal(this)
+        this = model.title_norminal(this)
+        this = model.drop_features(this, 'PassengerId','Name', 'Sex', 'Age', 'SibSp',
+                                   'Parch', 'Ticket', 'Fare', 'Cabin')
+
         return this
 
     def modeling(self, train, test) -> object: # 모델생성
@@ -42,6 +46,9 @@ class TitanicController(object):
     def submit(self): # 배포
         pass
 
-if __name__ == '__main__':
+if __name__=="__main__":
     t = TitanicController()
-    print(t.modeling('train.csv','test.csv'))
+    this = Dataset()
+    this = t.modeling('train.csv', 'test.csv')
+    print(this.train.head())
+    print(this.train.columns)
