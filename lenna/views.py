@@ -1,6 +1,6 @@
 
 
-from lena.models import LennaModel
+from lenna.models import LennaModel, CannyModel
 from util.dataset import Dataset
 
 

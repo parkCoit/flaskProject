@@ -1,6 +1,7 @@
 import cv2
 
-from lena.views import LennaController
+from lenna.models import CannyModel
+from lenna.views import LennaController
 from util.common import Common
 from util.dataset import Dataset
 
@@ -36,14 +37,25 @@ if __name__ == '__main__':
     api = LennaController()
 
     while True:
-        menu = Common.menu(["종료", "시각화", "모델링", "머신러닝", "배포"])
+        menu = Common.menu(["종료", "시각화", "그레이 스케일", "엣지 검출", "배포"])
         if menu == "0":
             print("종료")
             break
         elif menu == "1" :
-            img = api.modelling('')
+            print("### 원본보기 ###")
+            img = api.modelling('Lenna.png')
             print(f"cv2 버전 {cv2.__version__}")
             print(f'Shape is {img.shape}')
             cv2.imshow("Lenna", img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
+
+        elif menu == "2" :
+            print("### 그레이 스케일 ### ")
+            CannyModel().gray_scale()
+        elif menu == "3" :
+            print("### 엣지 검출 ###")
+            CannyModel().canny()
+        elif menu == "4" :
+            print("")
+        else : print("### 잘못 된 값 ###")
