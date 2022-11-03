@@ -23,7 +23,7 @@ class TitanicController(object):
         this.id = this.test['PassengerId']
         # columns 편집과정
         # this = model.pclass_ordinal(this) 데이터자체가 이미 오디널이다.
-        this = model.sex_norminal(this)
+        this = model.sex_norminal(this) # 프로토 타입
         this = model.age_ordinal(this)
         this = model.fare_ordinal(this)
         this = model.embarked_norminal(this)

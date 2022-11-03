@@ -15,7 +15,7 @@ class Dataset(object):
     # 데이터를 읽고(getter = 프로퍼티) / 쓰기(setter) 기능을 추가한다.
 
     @property
-    def context(self) -> str:  return self._context # str은 반환 값 getter 에만 적용
+    def context(self) -> str:  return './data/' # str은 반환 값 getter 에만 적용
 
     @context.setter
     def context(self, context):  self._context = context
