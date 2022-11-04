@@ -1,11 +1,13 @@
-from io import BytesIO
+import copy
 import cv2 as cv
 import numpy as np
-import requests
 from PIL import Image
 import matplotlib.pyplot as plt
-
+from util.lambdas import MosaicLambda
 from util.dataset import Dataset
+
+ds = Dataset()
+ds.context = "./data/"
 
 
 def GaussianBlur( src, sigmax, sigmay):
@@ -114,25 +116,61 @@ def Hough(girl_canny):
             cv.line(girl_hough, pt1, pt2, (255, 0, 0), 2, cv.LINE_AA)
     return girl_hough
 
-# girl_hough, girl_original, haar, lines
+
 def Haar(*params):
-    girl_hough = params[0]
-    girl_original= params[1]
-    haar = params[2]
-    lines = params[3]
-    girl_haar = haar.detectMultiScale(girl_original, minSize=(150, 150))
+    img= params[0]
+    haar = params[1]
+    dst = copy.deepcopy(img)
+    girl_haar = haar.detectMultiScale(dst, minSize=(150, 150))
     if len(girl_haar) == 0:
         print("얼굴인식 실패")
         quit()
     for (x, y, w, h,) in girl_haar:
         print(f'얼굴의 좌표 : {x},{y},{w},{h}')
         red = (255, 0, 0)
-        cv.rectangle(girl_original, (x, y), (x + w, y + h), red, thickness=20)
-    if lines is not None:
-        for i in range(lines.shape[0]):
-            pt1 = (lines[i][0][0], lines[i][0][1])
-            pt2 = (lines[i][0][2], lines[i][0][3])
-            cv.line(girl_hough, pt1, pt2, (255, 0, 0), 2, cv.LINE_AA)
+        cv.rectangle(img, (x, y), (x + w, y + h), red, thickness=20)
+    return (x, y, x +w, y+h)
+
+def Mosaic(*params):
+    img = params[0]
+    rect = params[1]
+    size = params[2]
+    (x1, y1, x2, y2) = rect
+    w = x2 - x1
+    h = y2 - y1
+    i_rect = img[y1:y2, x1:x2]
+    i_small = cv.resize(i_rect, (size, size))
+    i_mos = cv.resize(i_small, (w, h), interpolation=cv.INTER_AREA)
+    img2 = img.copy()
+    img2[y1:y2, x1:x2] = i_mos
+    return img2
+
+
+
+def Mosaics(*params):
+    img = params[0]
+    haar = params[1]
+    size = params[2]
+    dst = copy.deepcopy(img)
+    girl_haar = haar.detectMultiScale(dst, minSize=(150, 150))
+    for (x, y, w, h,) in girl_haar:
+        print(f'얼굴의 좌표 : {x},{y},{w},{h}')
+        (x1, y1, x2, y2) = (x, y, (x+w), (y+h))
+        w = x2 - x1
+        h = y2 - y1
+        i_rect = img[y1:y2, x1:x2]
+        i_small = cv.resize(i_rect, (size, size))
+        i_mos = cv.resize(i_small, (w, h), interpolation=cv.INTER_AREA)
+        dst[y1:y2, x1:x2] = i_mos
+    return dst
+
+
+
+
+
+
+
+
 
 def filter2D(src, kernel, delta=0):
     # 가장자리 픽셀을 (커널의 길이 // 2) 만큼 늘리고 새로운 행렬에 저장
@@ -151,24 +189,10 @@ def filter2D(src, kernel, delta=0):
             dst[x, y] = (kernel * cornerPixel[x: x + kernel.shape[0], y: y + kernel.shape[1]]).sum() + delta
     return dst
 
-def ExecuteLambda(*params):
-    cmd = params[0]
-    target = params[1]
-    ds = Dataset()
-    if cmd == "IMAGE_READ_FOR_CV":
-        return (lambda x: cv.imread(f'{ds.context}{x}'))(target)
-    elif cmd == "IMAGE_READ_FOR_CV_PLT":
-        return cv.cvtColor((lambda x: cv.imread(f'{ds.context}{x}'))(target), cv.COLOR_BGR2RGB)
-    elif cmd == "GRAYSCALE":
-        return (lambda x: x[:, :, 0] * 0.114 + x[:, :, 1] * 0.587 + x[:, :, 2] * 0.229)(target)
-    elif cmd == "IMAGE_FROM_ARRAY":
-        return (lambda x: Image.fromarray(x) )(target)
-    elif cmd == "URL":
-        return (lambda x: np.array(Image.open(BytesIO(requests.get(x, headers={'User-Agent': 'My User Agent 1.0'}).content))))(target)
 
 if __name__ == '__main__':
     url = "https://upload.wikimedia.org/wikipedia/ko/2/24/Lenna.png"
-    img = ExecuteLambda("URL", url)
+    img = MosaicLambda("URL", url)
     img = (lambda x: x[:, :, 0] * 0.114 + x[:, :, 1] * 0.587 + x[:, :, 2] * 0.229)(img)
     img = GaussianBlur(img, 1, 1.)
     img = Canny(img, 50, 150)
