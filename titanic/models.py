@@ -57,11 +57,13 @@ class TitanicModel(object):
             this.train = this.train.drop(i, axis = 1)
             this.test = this.test.drop(i, axis = 1)
         return this
+    """
     @staticmethod
     def pclass_ordinal(this) -> object: # 1, 2, 3등칸
         train = this.train
         test = this.test
         return this
+    """
     @staticmethod
     def sex_norminal(this) -> object: # female -> 1 , male -> 0
         for i in [this.train, this.test]:
@@ -116,8 +118,8 @@ if __name__ == '__main__':
     this = Dataset()
     this.train = t.new_model('train.csv')
     this.test = t.new_model('test.csv')
-    #this = TitanicModel.sex_norminal(this)
-    #this = TitanicModel.fare_ordinal(this)
+    this = TitanicModel.sex_norminal(this)
+    this = TitanicModel.fare_ordinal(this)
     this = TitanicModel.embarked_norminal(this)
     this = TitanicModel.age_ordinal(this)
     print(this.train.columns)

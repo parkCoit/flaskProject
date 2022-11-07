@@ -7,3 +7,6 @@ class Common(object):
         for i, j in enumerate(ls): # ["종료", "등록", "목록", "삭제"]
             print(f"{i}. {j}")
         return input("메뉴 :")
+
+
+
