@@ -1,8 +1,8 @@
-from scrapper import MusicRanking
+
 from scrapper.services import BugsMusic, MelonMusic
 
 
-class ScrapperController(object):
+class ScrapController(object):
     def __init__(self):
         pass
 
@@ -11,10 +11,8 @@ class ScrapperController(object):
 
     @staticmethod
     def menu_1(arg):
-        arg = MusicRanking()
         BugsMusic(arg)
 
     @staticmethod
     def menu_2(arg):
-        melon = MelonMusic()
-        melon.scraps()
+        MelonMusic(arg)

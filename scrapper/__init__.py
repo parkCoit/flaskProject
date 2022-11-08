@@ -1,10 +1,12 @@
-from scrapper.domains import MusicRanking
-from scrapper.views import ScrapperController
+from scrapper.domains import Scrap
+from scrapper.views import ScrapController
 from util.common import Common
 
-api = ScrapperController()
+
+
 if __name__ == '__main__':
-    m = MusicRanking()
+    api = ScrapController()
+    scrap = Scrap()
     while True :
         menus = ["종료", "벅스뮤직", "멜론뮤직"]
         menu = Common.menu(menus)
@@ -13,14 +15,18 @@ if __name__ == '__main__':
             break
         elif menu == "1":
             print(menus[1])
-            m.domain ="https://music.bugs.co.kr/chart/track/day/total?chartdate="
-            m.query_string = "20221101"
-            m.parser = "lxml"
-            m.class_names= "title"
-            m.class_names= "artist"
-            m.tag_name = "p"
-            api.menu_1(m)
+            scrap.domain = "https://music.bugs.co.kr/chart/track/day/total?chartdate="
+            scrap.query_string = "20221101"
+            scrap.parser = "lxml"
+            scrap.class_names= ["title","artist"]
+            scrap.tag_name = "p"
+            api.menu_1(scrap)
         elif menu == "2":
             print(menus[2])
-            api.menu_2(arg = "https://www.melon.com/chart/index.htm")
+            scrap.headers = {'User-Agent' : "Mozilla/5.0"}
+            scrap.domain = "https://www.melon.com/chart/index.htm"
+            scrap.parser = "lxml"
+            scrap.class_names = ["rank01", "rank03"]
+            scrap.tag_name ="div"
+            api.menu_2(scrap)
         else : print("잘못 된 값")
