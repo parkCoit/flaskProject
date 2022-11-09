@@ -87,27 +87,62 @@ class Mypandas(object):
     def compare_hwy(self):
         self.change_meta()
         mpg = self.mpg_add_test
-        a = mpg.query("베기량 < 4")
-        b = mpg.query("베기량 > 5")
-        c = a['시외연비'].mean()
-        d = b['시외연비'].mean()
-        self.mpg_add_test = mpg
-        print(c)
-        print(d)
-    """
+        a = mpg.query("베기량 < 4")['시외연비'].mean()
+        b = mpg.query("베기량 > 5")['시외연비'].mean()
+        print(f"베기량 4이하 시외연비 평균 : {a}\n"
+              f"베기량 5이상 시외연비 평균 : {b}")
+        if a > b :
+            print(f"베기량 4 이하가 시외연비 더 좋음")
+        elif a < b :
+            print("베기량 5 이상이 시외연비 더 좋음")
+        else : print("시외연비 같음")
+
+
+
     def company_cty(self):
-        self.compare_hwy()
+        self.change_meta()
+        mpg = self.mpg_add_test
+        audi_cty = mpg.query('회사 == "audi"')["시내연비"].mean()
+        toyota_cty = mpg.query('회사 == "toyota"')["시내연비"].mean()
+        print(f"아우디 시내연비 평균 : {audi_cty}\n"
+              f"토요타 시내연비 평균 : {toyota_cty}")
+        if audi_cty > toyota_cty :
+            print("아우디가 도시연비 더 좋음")
+        elif audi_cty < toyota_cty :
+            print("토요타가 도시연비 더 좋음")
+        else: print("아우디 토요타 시내연비 같음")
+
+    def company_hwy(self):
+        self.change_meta()
+        mpg = self.mpg_add_test
+        company = mpg.query('회사 == "chevrolet" | 회사 == "ford" | 회사 == "honda"')['시외연비'].mean()
+        print(f"쉐보레 포드 혼다 hwy 평균 : {company}")
+
+    def class_cty(self):
+        self.change_meta()
         mpg = self.mpg_add_test
         print(mpg)
-        a = mpg.query("회사" == "audi")
-        b = mpg.query("회사" == "toyota")
-        c = a["도시연비"].mean()
-        d = b["도시연비"].mean()
-        print(c)
-        print(d)
-    """
+        suv = mpg.query('차종 == "suv"')["시내연비"].mean()
+        compact = mpg.query('차종 == "compact"')["시내연비"].mean()
+        print(f"suv 시내연비 : {suv}\n"
+              f"compact 시내연비 : {compact}")
+        if suv > compact :
+            print("suv 가 시내연비 더좋음")
+        elif suv < compact :
+            print("compact 가 시내연비 더좋음")
+        else: print("시내연비 같음")
 
+    def audi_hwy(self):
+        self.change_meta()
+        mpg = self.mpg_add_test
+        audi = mpg.query("회사 == 'audi'")['시외연비'].describe()
+        print(audi)
 
+    def class_cty_hwy(self):
+        self.change_meta()
+        mpg =self.mpg_add_test
+        a = mpg["차종"]
+        print(a)
 
 
 if __name__ == '__main__':
@@ -129,13 +164,13 @@ if __name__ == '__main__':
                  # mpg 144페이지 문제
                  "displ(배기량)이 4이하와 5이상 자동차의 hwy(고속도로 연비) 비교",
                  "아우디와 토요타 중 도시연비(cty) 평균이 높은 회사 검색",
-                 "쉐보레, 포드, 혼다 데이터 출력과 hwy 전체 평균"
+                 "쉐보레, 포드, 혼다 데이터 출력과 hwy 전체 평균",
                  # mpg 150페이지 문제
                  # 메타데이터가 category, cty 데이터는 해당 raw 데이터인 객체생성
                  # 후 다음 문제 풀이
-                 "suv / 컴팩 자동차 중 어떤 자동차의 도시연비 평균이 더 높은가?"
+                 "suv / 컴팩 자동차 중 어떤 자동차의 도시연비 평균이 더 높은가?",
                  # mpg 153페이지 문제
-                 "아우디차에서 고속도로 연비 1~5위 출력하시오"
+                 "아우디차에서 고속도로 연비 1~5위 출력하시오",
                  # mpg 158페이지 문제
                  "평균연비가 가장 높은 자동차 1~3위 출력하시오"
                  ]
@@ -186,11 +221,15 @@ if __name__ == '__main__':
             m.company_cty()
         elif menu == "13":
             print("쉐보레, 포드, 혼다 데이터 출력과 hwy 전체 평균")
+            m.company_hwy()
         elif menu == "14":
             print("suv / 컴팩 자동차 중 어떤 자동차의 도시연비 평균이 더 높은가?")
+            m.class_cty()
         elif menu == "15":
             print("아우디차에서 고속도로 연비 1~5위 출력하시오")
+            m.audi_hwy()
         elif menu == "16":
             print("평균연비가 가장 높은 자동차 1~3위 출력하시오")
+            m.class_cty_hwy()
 
         else : print("잘못 된 값")
