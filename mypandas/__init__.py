@@ -1,4 +1,4 @@
-from store.fruits import Fruits
+from mypandas.fruits import Fruits
 from util.common import Common
 
 ls = []
