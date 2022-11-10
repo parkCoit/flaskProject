@@ -1,3 +1,6 @@
+from string import ascii_lowercase
+
+import numpy as np
 import pandas as pd
 
 
@@ -19,6 +22,29 @@ def new_friuts_df():
     print(sum(df["가격"])//3)
     print(sum(df["판매량"])//3)
 
+def new_number_2d():
+    a = range(1,10)
+    print(a)
+    df = pd.DataFrame(np.array([list(range(1, 11)),
+                                list(range(11, 21)),
+                                list(range(21, 31))]),
+                      #columns=["a","b","c","d","e","f","g","h","i","j"]
+                      columns=list(ascii_lowercase)[0:10]) # lower 소문자 upper 대문자
+    print(df)
+
+
 
 if __name__ == '__main__':
-    new_friuts_df()
+    menus = ["종료", "과일2D", "숫자2D"]
+    while True :
+        menu =[print(f"{i}.{j}") for i, j in enumerate(menus)]
+        num = input("메뉴 :")
+        if num == "0":
+            print(menus[0])
+            break
+        elif num == "1":
+            print(menus[1])
+            new_friuts_df()
+        elif num == "2":
+            print(menus[2])
+            new_number_2d()

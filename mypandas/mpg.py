@@ -135,14 +135,13 @@ class Mypandas(object):
     def audi_hwy(self):
         self.change_meta()
         mpg = self.mpg_add_test
-        audi = mpg.query("회사 == 'audi'")['시외연비'].describe()
-        print(audi)
+        audi = mpg.query("회사 == 'audi'").sort_values('시외연비', ascending=False)['시외연비']
+        print(audi.head(5))
 
     def class_cty_hwy(self):
-        self.change_meta()
+        self.var_test()
         mpg =self.mpg_add_test
-        a = mpg["차종"]
-        print(a)
+        print(mpg.sort_values('총연비', ascending= False).head(3))
 
 
 if __name__ == '__main__':
