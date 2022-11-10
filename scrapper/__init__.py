@@ -26,7 +26,7 @@ if __name__ == '__main__':
             scrap.headers = {'User-Agent' : "Mozilla/5.0"}
             scrap.domain = "https://www.melon.com/chart/index.htm"
             scrap.parser = "lxml"
-            scrap.class_names = ["rank01", "rank03"]
+            scrap.class_names = ["rank01", "rank02"]
             scrap.tag_name ="div"
             api.menu_2(scrap)
         else : print("잘못 된 값")

@@ -135,7 +135,8 @@ class Mypandas(object):
     def audi_hwy(self):
         self.change_meta()
         mpg = self.mpg_add_test
-        audi = mpg.query("회사 == 'audi'").sort_values('시외연비', ascending=False)['시외연비']
+        audi = mpg.query("회사 == 'audi'").sort_values('시외연비', ascending=False)["시외연비"]
+        [print(f"{i+1}등 : {j}")for i,j in enumerate(audi.head(5))]
         print(audi.head(5))
 
     def class_cty_hwy(self):

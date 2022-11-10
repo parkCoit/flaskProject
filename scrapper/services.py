@@ -28,7 +28,7 @@ def MelonMusic(arg):
     soup = BeautifulSoup(urlopen(req), arg.parser)
     _ = 0
     title = {"class": arg.class_names[0]}
-    artist = {"class": arg.class_names[0]}
+    artist = {"class": arg.class_names[1]}
     titles = soup.find_all(name=arg.tag_name, attrs=title)
     titles = [i.find('a').text for i in titles]
     artists = soup.find_all(name=arg.tag_name, attrs=artist)
@@ -37,8 +37,6 @@ def MelonMusic(arg):
      for i, j, k in zip(range(1, len(titles)+1), titles, artists)]
     diction = {}
     for i, j in enumerate(titles):
-        print(j)
-        print(i)
         diction[j] =artists[i]
     arg.diction = diction
     arg.dict_to_dataframe()

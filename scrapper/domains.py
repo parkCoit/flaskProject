@@ -37,7 +37,7 @@ class Melon:
 
 """
 @dataclass
-class Scrap():
+class Scrap:
     html = ""
     parser = ""
     domain = ""
@@ -52,7 +52,6 @@ class Scrap():
     df = None
 
     def dict_to_dataframe(self):
-        print(len(self.diction))
         self.df = pd.DataFrame.from_dict(self.diction, orient='index') #orient='index'는 index를 자동 선언
 
 
