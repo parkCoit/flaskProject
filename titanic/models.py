@@ -4,6 +4,9 @@ import pandas as pd
 
 from util.dataset import Dataset
 
+from sklearn.model_selection import KFold # 머신러닝 라이브러리
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier # 랜덤 포레스트 분류기
 
 """
  ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
@@ -112,6 +115,19 @@ class TitanicModel(object):
                 'Rare': 6
             })
         return this
+
+    @staticmethod
+    def create_k_fold():
+        return KFold(n_splits=10, shuffle=True, random_state=0) # KFold 객체
+    @staticmethod
+    def get_accuracy(this, algo):
+        score = cross_val_score(algo,
+                                this.train,
+                                this.label,
+                                cv=TitanicModel.create_k_fold() ,
+                                n_jobs=1,
+                                scoring='accuracy')
+        return round(np.mean(score)*100,2)
 
 if __name__ == '__main__':
     t = TitanicModel()

@@ -34,6 +34,8 @@ def new_number_2d():
 
 
 
+
+
 if __name__ == '__main__':
     menus = ["종료", "과일2D", "숫자2D"]
     while True :
@@ -48,3 +50,4 @@ if __name__ == '__main__':
         elif num == "2":
             print(menus[2])
             new_number_2d()
+
