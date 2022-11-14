@@ -38,7 +38,7 @@ my_meta = {
     "class" : "차종"
 }
 
-class Mypandas(object):
+class MpgService(object):
 
     def __init__(self):
         self.mpg = pd.read_csv("./data/mpg.csv")
@@ -147,7 +147,7 @@ class Mypandas(object):
 
 if __name__ == '__main__':
 
-    m = Mypandas()
+    m = MpgService  ()
     while True:
         menus = ["종료",
                  "mpg 앞부분 확인",

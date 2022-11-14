@@ -27,7 +27,7 @@ if __name__ == '__main__':
             df = api.modeling('train.csv', 'test.csv')
         elif menu == "3":
             print(" ### 머신러닝 ### ")
-            api.learning('train.csv', 'test.csv', [RandomForestClassifier(),
+            df = api.learning('train.csv', 'test.csv', [RandomForestClassifier(),
                                                    DecisionTreeClassifier(),
                                                    LogisticRegression()])
             # 랜덤 포레스트 분류기 83.05%
