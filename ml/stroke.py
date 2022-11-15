@@ -1,14 +1,18 @@
 import pandas as pd
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
 
-STROKE_MENUS = ["종료", #0
-                "데이터구하기",#1
-                "한글화",#2
-                "타겟변수설정",#3
-                "시각화",#4
-                "모델링",#5
-                "학습",#6
-                "예측"]#7
+
+STROKE_MENUS = ["Exit", #0
+                "Spec",#1
+                "Rename",#2
+                "Inteval",#3 18세이상만 사용함
+                "Norminal",#4
+                "Target",#5
+                "Partition",#6
+                "미완성: Fit",#7
+                "미완성: Predicate"]#8
 stroke_meta = {
     'id': '아이디',
     'gender': '성별',
@@ -26,8 +30,10 @@ stroke_meta = {
 stroke_menu = {
     "1" : lambda t: t.spec(),
     "2" : lambda t: t.rename_meta(),
-    "3" : lambda t: t.target(),
-    "4" : lambda t: t.categorical_variables()
+    "3" : lambda t: t.interval_variables(),
+    "4" : lambda t: t.categorical_variables(),
+    "5" : lambda t: t.target(),
+    "6" : lambda t: t.partition()
 }
 '''
 <class 'pandas.core.frame.DataFrame'>
@@ -93,7 +99,7 @@ class StrokeService:
     타깃 변수값 : 과거에 한 번이라도 뇌졸중이 발병했으면 1, 아니면 0
     '''
 
-    def target(self): # 타깃 변수 생성
+    def interval_variables(self): # 타깃 변수 생성
         t = self.my_stroke
         # ID 변수 설정
         print(t['아이디'].dtypes)
@@ -145,6 +151,37 @@ class StrokeService:
         t['흡연여부'] = OrdinalEncoder().fit_transform(t['흡연여부'].values.reshape(-1, 1))
 
         self.adult_stoke.to_csv('./save/stroke.csv')
+
+    def ordinal_variables(self):
+        pass
+
+    '''
+        데이터프레임을 데이터 파티션하기 전에 타깃변수와 입력변수를 
+        target 과 data 에 분리하여 저장한다.
+    '''
+
+    def target(self):
+        df = pd.read_csv('./save/stroke.csv')
+        self.data = df.drop(['뇌졸중'], axis=1)
+        self.target = df['뇌졸중']
+        print(f'--- data shape\n {self.data}' )
+        print(f'--- targe shape\n{self.target}')
+
+    def partition(self):
+        dframe = pd.read_csv('./save/stroke.csv')
+        data = dframe.drop(['뇌졸중'], axis=1)
+        target = dframe['뇌졸중']
+        undersample = RandomUnderSampler(sampling_strategy=0.333, random_state= 2)
+        data_under, target_under = undersample.fit_resample(data, target)
+        print(target_under.value_counts(dropna=True))
+        # 50 : 50 데이터 분할
+        X_train, X_test, y_train, y_test = train_test_split(data_under, target_under, test_size=0.5, random_state=42, stratify=target_under)
+        print("X_train shape:", X_train.shape)
+        print("X_test shape:", X_test.shape)
+        print("y_train shape:", y_train.shape)
+        print("y_test shape:", y_test.shape)
+        print(y_train.value_counts(normalize=True)) # %
+        print(y_train.value_counts())
 
 
 

@@ -1,3 +1,4 @@
+from ml.oklahoma import Oklahoma, OKLAHOMA_MENUS, oklahoma_menu
 from ml.stroke import STROKE_MENUS, stroke_menu
 from ml.stroke import StrokeService
 def my_menu(ls):
@@ -6,6 +7,21 @@ def my_menu(ls):
     return input('메뉴선택: ')
 
 if __name__ == '__main__':
+    # oklahoma
+    t =  Oklahoma()
+    while True:
+        menu = my_menu(OKLAHOMA_MENUS)
+        if menu == '0':
+            print("종료")
+            break
+        else:
+            try:
+                oklahoma_menu[menu](t)
+            except KeyError:
+                print(" ### Error ### ")
+    # stroke
+    """
+
     t = StrokeService()
     while True:
         menu = my_menu(STROKE_MENUS)
@@ -17,3 +33,4 @@ if __name__ == '__main__':
                 stroke_menu[menu](t)
             except KeyError:
                 print(" ### Error ### ")
+    """
