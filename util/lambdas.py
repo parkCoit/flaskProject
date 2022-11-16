@@ -22,3 +22,16 @@ def MosaicLambda(*params):
         return (lambda x: Image.fromarray(x) )(target)
     elif cmd == "URL":
         return (lambda x: np.array(Image.open(BytesIO(requests.get(x, headers={'User-Agent': 'My User Agent 1.0'}).content))))(target)
+
+
+"""
+    def spec(self):
+        [(lambda x :print(f"--- Spec ---"
+              f"\n--- 1.Shape ---\n{x.shape}"
+              f"\n--- 2.Features ---\n{x.columns}"
+              f"\n--- 3.Info ---\n{x.info()}"
+              f"\n--- 4.Case Top1 ---\n{x.head(1)}"
+              f"\n--- 5.Case Bottom1 ---\n{x.tail(3)}"
+              f"\n--- 6.Describe ---\n{x.describe()}"
+              f"\n--- 7.Describe All ---\n{x.describe(include='all')}"))(i) for i in [self.crime, self.cctv]]
+"""

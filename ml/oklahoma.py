@@ -114,10 +114,6 @@ class Oklahoma:
 
 
 
-
-
-
-
     def norminal_variables(self):
         t = self.oklahoma
         nor1 = ['MAR']
