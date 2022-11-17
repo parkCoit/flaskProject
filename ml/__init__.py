@@ -22,8 +22,10 @@ if __name__ == '__main__':
         else:
             try:
                 crime_menu[menu](t)
+
             except KeyError:
                 print(" ### Error ### ")
+
         """
     # oklahoma
     t =  Oklahoma()
