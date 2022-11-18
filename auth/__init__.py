@@ -1,4 +1,4 @@
-from auth.member import Member
+from auth.user import Member
 from util.common import Common
 
 ls = []

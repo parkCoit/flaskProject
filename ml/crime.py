@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 
 import googlemaps
 import numpy as np
@@ -15,7 +16,7 @@ CRIME_MENUS = ["Exit",  # 0
                "Save CCTV Population",  # 3
                "Save Police Norm",  # 4
                "Folium Example",  # 5
-               "Partition",  # 6
+               "Save Seoul Folium",  # 6
                "미완성: Fit",  # 7
                "미완성: Predicate"]  # 8
 crime_meta = {
@@ -26,9 +27,9 @@ crime_menu = {
     "2": lambda t: t.save_police_pop(),
     "3": lambda t: t.save_cctv_pos(),
     "4": lambda t: t.save_police_norm(),
-    "5": lambda t: t.folium_example(),
-    "6": lambda t: t.target(),
-    "7": lambda t: t.partition(),
+    "5": lambda t: t.save_us_unemployment_map(),
+    "6": lambda t: t.save_seoul_folium(),
+    "7": lambda t: t.get_seoul_crime_data(),
     "8": lambda t: t.save_cctv_pos()
 }
 '''
@@ -52,6 +53,37 @@ dtypes: int64(6), object(5)
 memory usage: 2.8+ KB
 '''
 
+@dataclass
+class MyChoroplethVO:
+    geo_data = "",
+    data = object,
+    name = "",
+    columns = [],
+    key_on = "",
+    fill_color = "",
+    fill_opacity = 0.0,
+    line_opacity = 0.0,
+    legend_name = "",
+    bins = None,
+    location = [],
+    zoom_start = 0,
+    save_path = ''
+
+def MyChoroplethService(vo):
+    map = folium.Map(location=vo.location, zoom_start=vo.zoom_start)
+    folium.Choropleth(
+        geo_data=vo.geo_data,
+        data=vo.data,
+        name=vo.name,
+        columns=vo.columns,
+        key_on=vo.key_on,
+        fill_color=vo.fill_color,
+        fill_opacity=vo.fill_opacity,
+        line_opacity=vo.line_opacity,
+        legend_name=vo.legend_name,
+    ).add_to(map)
+    map.save(vo.save_path)
+
 
 class Crime:
     def __init__(self):
@@ -66,7 +98,11 @@ class Crime:
         self.arrest_columns = ['살인 검거', '강도 검거', '강간 검거', '절도 검거', '폭력 검거']
         self.us_states = './data/us-states.json'
         self.us_unemployment = pd.read_csv('./data/us_unemployment.csv')
-        print(self.us_unemployment)
+        self.us_states = "./data/us-states.json"
+        self.us_unemployment = pd.read_csv('./data/us_unemployment.csv')
+        self.kr_states = './data/kr-state.json'
+        print(self.kr_states)
+
 
     '''
     1.스펙보기 
@@ -120,7 +156,6 @@ class Crime:
         # 구와
         crime.loc[crime['관서명'] == '혜화서', ['구별']] == '종로구'
         crime.loc[crime['관서명'] == '서부서', ['구별']] == '은평구'
-        crime.loc[crime['관서명'] == '강서서', ['구별']] == '양천구'
         crime.loc[crime['관서명'] == '종암서', ['구별']] == '성북구'
         crime.loc[crime['관서명'] == '방배서', ['구별']] == '서초구'
         crime.loc[crime['관서명'] == '수서서', ['구별']] == '강남구'
@@ -204,8 +239,7 @@ class Crime:
         """
         police_norm = pd.DataFrame(x_scaled, columns=self.crime_columns, index=police.index)
         print(police_norm)
-
-        police_norm[self.crime_columns] = police[self.crime_rate_columns]
+        police_norm[self.crime_rate_columns] = police[self.crime_rate_columns]
         police_norm['범죄'] = np.sum(police_norm[self.crime_rate_columns], axis=1)
         police_norm['검거'] = np.sum(police_norm[self.crime_columns], axis=1)
         police_norm.to_pickle('./save/police_norm.pkl')
@@ -213,34 +247,53 @@ class Crime:
 
 
 
-    def folium_example(self): # 지도 folium 샘플
-        us_states = self.us_states
-        us_unemployment = self.us_unemployment
+    def save_us_unemployment_map(self): # 5
+        mc = MyChoroplethVO()
+        mc.geo_data = self.us_states
+        mc.data = self.us_unemployment
+        mc.name = "choropleth"
+        mc.columns = ["State","Unemployment"]
+        mc.key_on = "feature.id"
+        mc.fill_color = "YlGn"
+        mc.fill_opacity = 0.7
+        mc.line_opacity = 0.5
+        mc.legend_name = "Unemployment Rate (%)"
+        mc.bins = list(mc.data["Unemployment"].quantile([0, 0.25, 0.5, 0.75, 1]))
+        mc.location = [48, -102]
+        mc.zoom_start = 5
+        mc.save_path = "./save/unemployment.html"
+        MyChoroplethService(mc)
 
-        url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
+    def save_seoul_folium(self):
+        mc = MyChoroplethVO()
+        mc.geo_data = self.kr_states
+        mc.data = self.get_seoul_crime_data()
+        mc.name = "choropleth"
+        mc.columns = ["State", "Crime Rate"]
+        mc.key_on = "feature.id"
+        mc.fill_color = "PuRd"
+        mc.fill_opacity = 0.7
+        mc.line_opacity = 0.2
+        mc.legend_name = "Crime Rate (%)"
+        mc.location = [37.5502, 126.982]
+        mc.zoom_start = 12
+        mc.save_path = "./save/seoul_crime_rate.html"
+        MyChoroplethService(mc)
 
-        state_geo = f"{url}/us-states.json"
-        state_unemployment = f"{url}/US_Unemployment_Oct2012.csv"
-        state_data = pd.read_csv(state_unemployment)
+    def get_seoul_crime_data(self):
+        police_pos = pd.read_pickle('./save/police_pos.pkl')
+        police_norm = pd.read_pickle('./save/police_norm.pkl')
+        temp = police_pos[self.arrest_columns] / police_pos[self.arrest_columns].max()
+        police_pos['검거'] = np.sum(temp, axis=1)
+        print(police_norm.index)
+        print(police_pos)
+        return tuple(zip(police_norm.index, police_norm['범죄']))
+        # police_norm.index 는 '구별'
 
-        bins = list(us_unemployment["Unemployment"].quantile([0, 0.25, 0.5, 0.75, 1]))  # quantile 4등분
-        m = folium.Map(location=[48, -102],zoom_start=5)
-
-        folium.Choropleth(
-            geo_data=state_geo, # 지도
-            data=state_data, # 데이터
-            name="choropleth",
-            columns=["State","Unemployment"], # col
-            key_on="feature.id",
-            fill_color="BuGn",
-            fill_opacity=0.6, # 투명도
-            line_opacity=0.5, # 선
-            legend_name='Unmployment Rate (%)',
-            bins=bins,
-            reset = True
-        ).add_to(m)
-        m.save("./save/us_unemployment.html")
-
+    def get_json_from_df(self, fname):  # 미국 주가 콜롬비아, 푸에르토-리코(준주) 포함시
+        df = pd.read_json(fname)
+        df.drop(df.index[[8, 51]], inplace=True)
+        df.to_json("./save/us-states.json", orient='index')
 
 
     def norminal(self):

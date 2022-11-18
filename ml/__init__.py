@@ -20,11 +20,14 @@ if __name__ == '__main__':
             print("종료")
             break
         else:
+            crime_menu[menu](t)
+            """
             try:
                 crime_menu[menu](t)
 
             except KeyError:
                 print(" ### Error ### ")
+            """
 
         """
     # oklahoma
