@@ -1,6 +1,8 @@
 
 from flask import Flask, request, render_template
 
+
+
 #  플라스크 웹 프로그래밍 35p
 app = Flask(__name__, static_folder='static',  template_folder='templates')
 
