@@ -46,3 +46,32 @@ class SearchNumber(object):
             else: print("### 잘못 된 값 ###")
 
 SearchNumber.main()
+"""
+if __name__ == '__main__':
+    ls = []
+
+    person_menus = ["종료", "신원 등록", "신원 정보", "신원 삭제"]
+
+    person_menu = {
+        "1": lambda t: ls.append(t.new_person()),
+        "2": lambda t: t.get_person(ls),
+        "3": lambda t: t.delete_person(ls, input("주민번호"))
+
+    }
+
+    if __name__ == '__main__':
+
+        t = Person
+        while True:
+            [print(f"{i}. {j}") for i, j in enumerate(person_menus)]
+            menu = input('메뉴선택: ')
+            if menu == '0':
+                print("종료")
+                break
+            else:
+                try:
+                    person_menu[menu](t)
+
+                except KeyError:
+                    print(" ### Error ### ")
+"""
