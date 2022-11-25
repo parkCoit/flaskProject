@@ -77,8 +77,9 @@ def riot(arg):
     #soup = BeautifulSoup(urlopen(arg.domain + arg.query_string), arg.parser)
     title = {"class": arg.class_names}
     titles = soup.find_all(name=arg.tag_name, attrs=title)
-    titles = [i.find('a') for i in titles]
+    titles = [i.find('a')['href'] for i in titles if i.find('a') is not None ]
     print(titles)
+
 
 
 class ScrapController(object):
