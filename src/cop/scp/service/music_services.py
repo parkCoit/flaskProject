@@ -72,7 +72,7 @@ def MelonMusic(arg):
     arg.dataframe_to_csv("results.csv")
 
 def riot(arg):
-    req = urllib.request.Request(arg.domain, headers=arg.headers)
+    req = urllib.request.Request(arg.domain+arg.query_string, headers=arg.headers)
     soup = BeautifulSoup(urlopen(req), arg.parser)
     #soup = BeautifulSoup(urlopen(arg.domain + arg.query_string), arg.parser)
     title = {"class": arg.class_names}
@@ -116,8 +116,8 @@ class ScrapController(object):
 
         scrap = Scrap()
         scrap.headers = {'User-Agent': "Mozilla/5.0"}
-        scrap.domain = f'https://fow.kr/find/hideonbush'
-        scrap.query_string = '응애민호'
+        scrap.domain = 'https://fow.kr/find/'
+        scrap.query_string = 'hideonbush'
         scrap.parser = "lxml"
         scrap.class_names = "recent_td"
         scrap.tag_name = "td"
