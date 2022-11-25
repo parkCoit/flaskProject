@@ -1,11 +1,11 @@
 import urllib
+
 from urllib.request import urlopen
 
 import pandas as pd
 from bs4 import BeautifulSoup
 from isort._future._dataclasses import dataclass
 
-from src.cmm.service.common import Common
 
 context = 'C:/Users/bitcamp/PycharmProjects/flaskProject/static/save/cop/scp/'
 
@@ -71,6 +71,16 @@ def MelonMusic(arg):
     arg.dict_to_dataframe()
     arg.dataframe_to_csv("results.csv")
 
+def riot(arg):
+    req = urllib.request.Request(arg.domain, headers=arg.headers)
+    soup = BeautifulSoup(urlopen(req), arg.parser)
+    #soup = BeautifulSoup(urlopen(arg.domain + arg.query_string), arg.parser)
+    title = {"class": arg.class_names}
+    titles = soup.find_all(name=arg.tag_name, attrs=title)
+    titles = [i.find('a') for i in titles]
+    print(titles)
+
+
 class ScrapController(object):
     def __init__(self):
         pass
@@ -88,24 +98,40 @@ class ScrapController(object):
         scrap.tag_name = "p"
         BugsMusic(scrap)
 
+
+
     @staticmethod
     def menu_2():
         scrap = Scrap()
         scrap.headers = {'User-Agent': "Mozilla/5.0"}
         scrap.domain = "https://www.melon.com/chart/index.htm"
         scrap.parser = "lxml"
-        scrap.class_names = ["rank01", "rank02"]
+        scrap.class_names = ["title", "artist"]
         scrap.tag_name = "div"
         MelonMusic(scrap)
+
+    @staticmethod
+    def menu_3():
+
+        scrap = Scrap()
+        scrap.headers = {'User-Agent': "Mozilla/5.0"}
+        scrap.domain = f'https://fow.kr/find/hideonbush'
+        scrap.query_string = '응애민호'
+        scrap.parser = "lxml"
+        scrap.class_names = "recent_td"
+        scrap.tag_name = "td"
+        riot(scrap)
 
 
 music_menus = ["Exit",  # 0
                "벅스뮤직",
-               "멜론뮤직"]  # 8
+               "멜론뮤직",
+               "포우"]  # 8
 
 music_menu = {
     "1": lambda t: t.menu_1(),
     "2": lambda t: t.menu_2(),
+    "3": lambda t: t.menu_3()
 
 }
 
