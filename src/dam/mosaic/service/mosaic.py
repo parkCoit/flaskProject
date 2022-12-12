@@ -309,7 +309,6 @@ class LennaController(object):
 
 
 if __name__ == '__main__':
-    if __name__ == '__main__':
 
         api = LennaController()
 

@@ -1,40 +1,32 @@
+import numpy as np
 import pandas as pd
-from imblearn.under_sampling import RandomUnderSampler
+from matplotlib import pyplot as plt, font_manager, rc
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+import seaborn as sns
+font_path = "C:/Windows/Fonts/malgunbd.ttf"
+font = font_manager.FontProperties(fname=font_path).get_name()
+rc('font', family=font)
 
 
-STROKE_MENUS = ["Exit", #0
-                "Spec",#1
-                "Rename",#2
-                "Inteval",#3 18세이상만 사용함
-                "Norminal",#4
-                "Target",#5
-                "Partition",#6
-                "미완성: Fit",#7
-                "미완성: Predicate"]#8
+
 stroke_meta = {
-    'id': '아이디',
-    'gender': '성별',
-    'age': '나이',
-    'hypertension': '고혈압',
-    'heart_disease': '심장병',
-    'ever_married' : '기혼여부',
-    'work_type' : '직종',
-    'Residence_type' : '거주형태',
-    'avg_glucose_level' : '평균혈당',
-    'bmi' : '체질량지수',
-    'smoking_status': '흡연여부',
-    'stroke': '뇌졸중'
+    'id':'아이디', 'gender':'성별', 'age':'나이',
+    'hypertension':'고혈압',
+    'heart_disease':'심장병',
+    'ever_married':'기혼여부',
+    'work_type':'직종',
+    'Residence_type':'거주형태',
+    'avg_glucose_level':'평균혈당',
+    'bmi':'체질량지수',
+    'smoking_status':'흡연여부',
+    'stroke':'뇌졸중'
 }
-stroke_menu = {
-    "1" : lambda t: t.spec(),
-    "2" : lambda t: t.rename_meta(),
-    "3" : lambda t: t.interval_variables(),
-    "4" : lambda t: t.categorical_variables(),
-    "5" : lambda t: t.target(),
-    "6" : lambda t: t.partition()
-}
+
 '''
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 5110 entries, 0 to 5109
@@ -58,11 +50,32 @@ memory usage: 479.2+ KB
 None
 '''
 
-class StrokeService:
+class Stroke:
+
+    data_path = f"C:/Users/bitcamp/PycharmProjects/flaskProject/static/data/dam/ml"
+    save = f"C:/Users/bitcamp/PycharmProjects/flaskProject/static/save/dam/ml"
+
     def __init__(self):
-        self.stroke = pd.read_csv('../../../../static/data/dam/ml/healthcare-dataset-stroke-data.csv')
+        self.stroke = pd.read_csv(f'{self.data_path}/healthcare-dataset-stroke-data.csv')
         self.my_stroke = None
         self.adult_stoke = None
+        self.target = None
+        self.data = None
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+
+    def hook(self):
+        s =Stroke()
+        s.spec()
+        s.rename_meta()
+        s.interval()
+        s.norminal()
+        s.set_target()
+        s.partition()
+        s.learning(flag='gini')
+
     '''
     1.스펙보기
     '''
@@ -89,99 +102,145 @@ class StrokeService:
         print(" --- 2.Features ---")
         print(self.my_stroke.columns)
 
-
-
-
     '''
-    3. 타깃변수(=종속변수 dependent, Y값) 설정
-    입력변수(=설명변수, 확률변수,X값)
-    타깃변수명 : stroke (=뇌졸중)
-    타깃 변수값 : 과거에 한 번이라도 뇌졸중이 발병했으면 1, 아니면 0
+    3.타깃변수(=종속변수 dependent, Y값) 설정
+    입력변수(=설명변수, 확률변수, X값)
+    타깃변수명: stroke (=뇌졸중)
+    타깃변수값: 과거에 한 번이라도 뇌졸중이 발병했으면 1, 아니면 0
+    인터벌 = ['나이','평균혈당','체질량지수']
     '''
-
-    def interval_variables(self): # 타깃 변수 생성
+    def interval(self):
         t = self.my_stroke
-        # ID 변수 설정
-        print(t['아이디'].dtypes)
-        print(t['아이디'].isnull().sum())
-        print(len(pd.unique(t['아이디'])))
-
-        # Target 변수 생성
-        print("--- Target ---")
-        print(t['뇌졸중'].isnull().sum())
-        print(t['뇌졸중'].value_counts(dropna=False))
-        print(t['뇌졸중'].value_counts(dropna=False, normalize=True))
-
-        # 기타 변수 데이터 처리 구간 변수
-        cols = ['나이','평균혈당','체질량지수'] # 구간 변수를 cols에 저장
-        print(t[cols].dtypes)
-        print(t[cols].isnull().sum())
-        print(f'--- 결측값 있는 변수 --- \n {t[cols].isna().any()[lambda x: x]}') # N/A 결측 값
+        interval = ['나이','평균혈당','체질량지수']
+        print(f'--- 구간변수 타입 --- \n {t[interval].dtypes}')
+        print(f'--- 결측값 있는 변수 --- \n {t[interval].isna().any()[lambda x: x]}')
+        print(f'체질량 결측비율: {t["체질량지수"].isnull().mean():.2f}')
+        # 체질량 결측비율: 0.03 는 무시한다
         pd.options.display.float_format = '{:.2f}'.format
-        print(t[cols].describe())
-        c = t['나이'] > 18  # 18세 이상 True 미만 False
-        print(t[c].head(3)) # 18세 미만 데이터셋 제거
-        print(len(t[c]))
-        print(len(t[c])/len(t) )
-        self.adult_stoke = t[c]   # 데이터프레임 t[c]를 t1에 저장
-        print(f'성인 객체 스펙 \n{self.adult_stoke.shape}')
+        print(f'--- 구간변수 기초 통계량 --- \n{t[interval].describe()}')
+        criterion = t['나이'] > 18
+        self.adult_stoke = t[criterion]
+        print(f'--- 성인객체스펙 --- \n{self.adult_stoke.shape}')
         # 평균혈당 232.64이하와 체질량지수 60.3이하를 이상치로 규정하고 제거함
         t = self.adult_stoke
         c1 = t['평균혈당'] <= 232.64
         c2 = t['체질량지수'] <= 60.3
         self.adult_stoke = self.adult_stoke[c1 & c2]
-        print(f'이상치 제거한 성인객체스펙 \n{self.adult_stoke.shape}')
+        print(f'--- 이상치 제거한 성인객체스펙 ---\n{self.adult_stoke.shape}')
 
     '''
-        4.범주형 = ['성별', '심장병', '기혼여부', '직종', '거주형태',
-                    '흡연여부', '뇌졸중']
+    4.범주형 = ['성별', '심장병', '기혼여부', '직종', '거주형태','흡연여부', '고혈압']
     '''
-    # 기타 변수 데이터 처리 범주형 변수  고혈압 심장병 type int64  나머지변수 object
-    def categorical_variables(self):
+
+    def ratio(self): # 해당 컬럼이 없음
+        pass
+    def norminal(self):
         t = self.adult_stoke
-        cols1 = ['성별', '고혈압', '심장병', '기혼여부', '직종', '거주형태', '흡연여부']
-        print(t[cols1].dtypes)
-        print(t[cols1].isnull().sum()) # 결측 값
-        print(f'--- 결측값 있는 변수 --- \n {t[cols1].isna().any()[lambda x: x]}')
-        # 결측값 x
-        t['성별'] = OrdinalEncoder().fit_transform(t['성별'].values.reshape(-1, 1))
+        category = ['성별', '심장병', '기혼여부', '직종', '거주형태', '흡연여부', '고혈압']
+        print(f'범주형변수 데이터타입\n {t[category].dtypes}')
+        print(f'범주형변수 결측값\n {t[category].isnull().sum()}')
+        print(f'결측값 있는 변수\n {t[category].isna().any()[lambda x: x]}')# 결측값이 없음
+        t['성별'] = OrdinalEncoder().fit_transform(t['성별'].values.reshape(-1,1))
         t['기혼여부'] = OrdinalEncoder().fit_transform(t['기혼여부'].values.reshape(-1, 1))
         t['직종'] = OrdinalEncoder().fit_transform(t['직종'].values.reshape(-1, 1))
         t['거주형태'] = OrdinalEncoder().fit_transform(t['거주형태'].values.reshape(-1, 1))
         t['흡연여부'] = OrdinalEncoder().fit_transform(t['흡연여부'].values.reshape(-1, 1))
 
-        self.adult_stoke.to_csv('C:/Users/bitcamp/PycharmProjects/flaskProject/static/save/dam/ml/stroke.csv')
+        self.stroke = t
+        self.spec()
+        print(" ### 프리프로세스 종료 ### ")
+        self.stroke.to_csv(f"{self.save}/stroke.csv", index=0)
 
-    def ordinal_variables(self):
+    def ordinal(self): # 해당 컬럼이 없음
         pass
 
     '''
-        데이터프레임을 데이터 파티션하기 전에 타깃변수와 입력변수를 
-        target 과 data 에 분리하여 저장한다.
+    데이터프레임을 데이터 파티션하기 전에 타깃변수와 입력변수를 
+    target 과 data 에 분리하여 저장한다.
     '''
-
-    def target(self):
-        df = pd.read_csv('../../../../static/save/dam/ml/stroke.csv')
+    def set_target(self):
+        df = pd.read_csv(f'{self.save}/stroke.csv')
         self.data = df.drop(['뇌졸중'], axis=1)
+        self.data = self.data.drop(['아이디'], axis=1)
         self.target = df['뇌졸중']
-        print(f'--- data shape\n {self.data}' )
-        print(f'--- targe shape\n{self.target}')
+        print(f'--- data shape --- \n {self.data}')
+        print(f'--- target shape --- \n {self.target}')
 
     def partition(self):
-        dframe = pd.read_csv('../../../../static/save/dam/ml/stroke.csv')
-        data = dframe.drop(['뇌졸중'], axis=1)
-        target = dframe['뇌졸중']
-        undersample = RandomUnderSampler(sampling_strategy=0.333, random_state= 2)
+        data = self.data
+        target = self.target
+        undersample = RandomUnderSampler(sampling_strategy=0.333, random_state=2)
         data_under, target_under = undersample.fit_resample(data, target)
         print(target_under.value_counts(dropna=True))
-        # 50 : 50 데이터 분할
-        X_train, X_test, y_train, y_test = train_test_split(data_under, target_under, test_size=0.5, random_state=42, stratify=target_under)
-        print("X_train shape:", X_train.shape)
-        print("X_test shape:", X_test.shape)
-        print("y_train shape:", y_train.shape)
-        print("y_test shape:", y_test.shape)
-        print(y_train.value_counts(normalize=True)) # %
-        print(y_train.value_counts())
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(data_under, target_under,
+                                                            test_size=0.5, random_state=42, stratify=target_under)
+        print("X_train shape:", self.X_train.shape)
+        print("X_test shape:", self.X_test.shape)
+        print("y_train shape:", self.y_train.shape)
+        print("y_test shape:", self.y_test.shape)
+
+    def learning(self, flag):
+        X_train = self.X_train
+        y_train = self.y_train
+        X_test = self.X_test
+        y_test = self.y_test
+        if flag == 'ccee':
+            tree = DecisionTreeClassifier(criterion="entropy", random_state=0, max_depth=5)
+            tree.fit(X_train, y_train)
+            print("Accuracy on training set:{:.5f}".format(tree.score(X_train, y_train)))
+            print("Accuracy on test set:{:.5f}".format(tree.score(X_test, y_test)))
+        elif flag == 'gini':
+            tree = DecisionTreeClassifier(criterion="gini", random_state=0, max_depth=5)
+            parms = {'criterion': ['gini','entropy'], 'max_depth': range(1,21)}
+            # 5회의 교차검증을 2개의 기준마다 20개의 max_depth 값으로 대입 ( 5 * 2 * 20 = 총 200회) 학습(fit) 됨
+            grid_tree = GridSearchCV(
+                tree,
+                param_grid=parms,
+                scoring='accuracy',
+                cv=5,  # 교차 검증 파라미터 5회실시
+                n_jobs=1,  # 멀티코어 CPU 모두 사용
+                verbose=1  # 연산중간 메세지 출력
+            )
+            grid_tree.fit(X_train, y_train)
+            # print("GridSearchCV max accuracy:{:.5f}".format(grid_tree.best_score_))
+            # print("GridSearchCV best parameter:", (grid_tree.best_params_))
+            best_clf = grid_tree.best_estimator_
+            pred = best_clf.predict(X_test)
+            # print("Accuracy on test set:{:.5f}".format(accuracy_score(y_test, pred)))
+            print(f"Feature importances: {best_clf.feature_importances_}") # 최적 모델의 변수 중요도
+            feature_names = list(self.data.columns)
+            dft = pd.DataFrame(np.round(best_clf.feature_importances_, 4),
+                               index=feature_names, columns=['Feature_importances'])
+            dft1 = dft.sort_values(by='Feature_importances', ascending=False)
+            print(dft1)
+            ax = sns.barplot(y=dft1.index, x="Feature_importances", data=dft1)
+
+            [ax.annotate("%.3f" % p.get_width(), (p.get_x() + p.get_width(), p.get_y()+1),
+                         xytext=(5,10), textcoords='offset points') for p in ax.patches]
+            plt.show()
 
 
 
+
+
+stroke_menu = ["Exit", #0
+                "learning"] #1
+stroke_lambda = {
+    "1" : lambda x: x.hook()
+}
+if __name__ == '__main__':
+    stroke = Stroke()
+    while True:
+        [print(f"{i}. {j}") for i, j in enumerate(stroke_menu)]
+        menu = input('메뉴선택: ')
+        if menu == '0':
+            print("종료")
+            break
+        else:
+            try:
+                stroke_lambda[menu](stroke)
+            except KeyError as e:
+                if 'some error message' in str(e):
+                    print('Caught error message')
+                else:
+                    print("Didn't catch error message")
